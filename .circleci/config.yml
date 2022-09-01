@@ -292,7 +292,7 @@ jobs:
             echo "taking 1min nap"
             sleep 60
             
-            if curl -v ${API_URL}/api/status | grep "ok"
+            if curl ${API_URL}/api/status | grep "ok"
             then
               return 0
             else
