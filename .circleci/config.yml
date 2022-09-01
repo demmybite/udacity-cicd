@@ -162,7 +162,7 @@ jobs:
           
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -171,7 +171,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            sudo npm install -g npm@latest
+            npm install 
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
