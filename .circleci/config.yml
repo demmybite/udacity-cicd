@@ -8,6 +8,7 @@ commands:
       parameters:
         workflow_id:
           type: string
+          default: ${CIRCLE_WORKFLOW_ID:0:7}
       steps:
         - run:
             name: Destroy environments
@@ -147,7 +148,6 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-        workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       
 workflows:
   default:
