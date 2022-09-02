@@ -1,9 +1,18 @@
 version: 2.1
 
 
+executors:
+  node:
+    docker:
+      - image: circleci/node:13.8.0
+  python:
+    docker:
+      - image: python:3.9.0-alpine
+  aws:
+    docker:
+      - image: amazon/aws-cli
 
 commands:
-  
             
 jobs:
   build-frontend:
@@ -219,55 +228,27 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             
   deploy-backend:
-    docker:
-      - image: python:3.10-alpine3.16
+    executor: python
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["12:8a:75:35:a7:ac:f5:b4:92:de:b2:ef:5a:7c:fc:b3"]
-      - attach_workspace:
-          at: ~/
+       - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
+          working_directory: /tmp
           command: |
-            cd backend
-            apk add --update --no-cache ansible tar gzip nodejs npm curl aws-cli
-      - run:
-          name: Package Backend
-          command: |
-            cd backend
-            npm install typescript -g
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
+            pip install awscli
+            aws --version
       - run:
           name: Deploy backend
+          working_directory: ./.circleci/ansible
           command: |
-            cd backend
-            
-            touch .env
-            echo ENVIRONMENT=production > ".env"
-            echo TYPEORM_CONNECTIONS=postgres >> ".env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
-            echo NODE_ENV=production >> ".env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-            
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
-            
-            cd .circleci/ansible
-            
-            cat inventory.txt
-            
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            cat inventory
+            ansible-playbook -i inventory deploy-backend.yaml -vv
  
   smoke-test:
     docker:
