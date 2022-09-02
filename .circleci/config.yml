@@ -236,6 +236,7 @@ jobs:
           name: Package Backend
           command: |
             cd backend
+            npm install typescript -g
             npm run build
             tar -czf artifact.tar.gz dist/* package*
             cd ..
