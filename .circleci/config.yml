@@ -251,8 +251,7 @@ jobs:
             ansible-playbook -i inventory deploy-backend.yml -vv
  
   smoke-test:
-    docker:
-      - image: python:3.10-alpine3.16
+    executor: python
     steps:
       - checkout
       - run:
