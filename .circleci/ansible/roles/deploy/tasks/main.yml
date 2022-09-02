@@ -7,7 +7,8 @@
 - name: "Copy backend files"
   unarchive:
     src: artifact.tar.gz
-    dest: "~/backend-app/artifact.tar.gz"
+    dest: ~/backend-app/artifact.tar.gz
+    recursive: true
     
 - name: "Unarchive backend files"
   shell: |
