@@ -4,10 +4,16 @@
     path: ~/backend-app
     state: directory
 
-- name: "Unarchive backend files"
+- name: "Copy backend files"
   unarchive:
     src: artifact.tar.gz
-    dest: ~/backend-app
+    dest: "~/backend-app/artifact.tar.gz"
+    
+- name: "Unarchive backend files"
+  shell: |
+    cd ~/backend_app
+    tar –xvzf artifact.tar.gz
+    rm -rf artifact.tar.gz
 
 - name: "Installing Node Dependencies"
   shell: |

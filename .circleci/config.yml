@@ -259,6 +259,8 @@ jobs:
             ls -al
             tar -C backend -czvf artifact.tar.gz .
             
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            
             cd .circleci/ansible
             
             echo "Content of inventory.txt file......."
