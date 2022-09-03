@@ -328,7 +328,9 @@ jobs:
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}/api/status"
-            if curl -s -v --connect-timeout 30 --retry-connrefused 5 "${API_URL}/api/status" | grep "ok"
+            
+            sleep 90
+            if curl -v "${API_URL}/api/status" | grep "ok"
             then
                 exit 0
                  
