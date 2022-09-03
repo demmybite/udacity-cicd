@@ -1,41 +1,57 @@
-- name: Create app dir
-  become: yes
-  file:
-    path: /home/ubuntu/app
-    state: directory
+---
+  - name: Extract artifact
+    unarchive:
+      src: ~/project/artifact.tar.gz
+      dest: /home/ubuntu
+  - name: "upgrade packages. "
+    become: true
+    apt:
+      upgrade: "yes"
+  - name: "install dependencies."
+    become: true
+    apt:
+      name: ["nodejs", "npm"]
+      state: latest
+      update_cache: yes
 
-- name: "Copy backend build folder to EC2"
-  become: yes
-  unarchive:
-    src: /tmp/workspace/backend.tar.gz
-    dest: /home/ubuntu/app/
-    owner: ubuntu
-
-- name: "Copy package.json to EC2"
-  become: yes
-  copy:
-    src: /tmp/workspace/package.json
-    dest: /home/ubuntu/app/
-    owner: ubuntu
-
-- name: "NPM Install"
-  shell:
-    cmd: npm install --production
-    chdir: /home/ubuntu/app
-
-- name: "Start backend with pm2"
-  become: yes
-  shell: |
-    cd /home/ubuntu/app
-    pm2 start main.js --name app
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "./migrations"
-    TYPEORM_MIGRATIONS: "./migrations/*.js"
-    TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+  - name: "install npm"
+    become: yes
+    npm:
+      name: npm
+      global: yes
+      production: yes
+      
+  - name: "install pm2"
+    become: true
+    npm:
+      name: pm2
+      global: yes
+      production: yes
+      state: present
+  
+  - name: load environment variables
+    become_method: sudo
+    become_user: root
+    become: yes
+    shell: |
+      ls -al
+       	echo "NODE_ENV=production" >> .env
+      echo "ENVIRONMENT=production" >> .env
+      echo "TYPEORM_CONNECTION={{ lookup('env', 'TYPEORM_CONNECTION')}}" >> .env
+      echo "TYPEORM_ENTITIES={{ lookup('env', 'TYPEORM_ENTITIES')}}" >> .env
+      echo "TYPEORM_HOST={{ lookup('env', 'TYPEORM_HOST')}}" >> .env
+      echo "TYPEORM_PORT={{ lookup('env', 'TYPEORM_PORT')}}" >> .env
+      echo "TYPEORM_USERNAME={{ lookup('env', 'TYPEORM_USERNAME')}}" >> .env
+      echo "TYPEORM_PASSWORD={{ lookup('env', 'TYPEORM_PASSWORD')}}" >> .env
+      echo "TYPEORM_DATABASE={{ lookup('env', 'TYPEORM_DATABASE')}}" >> .env
+      echo "TYPEORM_MIGRATIONS={{ lookup('env', 'TYPEORM_MIGRATIONS')}}" >> .env
+      echo "TYPEORM_MIGRATIONS_DIR={{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}" >> .env
+            
+  - name: "start server"
+    become: true
+    environment:
+      path: ~/.env 
+      #TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+      ########TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+    shell: |
+        pm2 start npm -- start
