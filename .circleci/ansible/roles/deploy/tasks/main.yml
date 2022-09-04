@@ -54,4 +54,4 @@
       #TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
       ########TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
     shell: |
-      pm2 start npm -- start
+      sudo pm2 start npm -- start
