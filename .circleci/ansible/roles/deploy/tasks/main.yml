@@ -1,5 +1,6 @@
 ---
   - name: Extract artifact
+    become: true
     unarchive:
       src: ~/project/artifact.tar.gz
       dest: /home/ubuntu
@@ -13,14 +14,6 @@
       name: ["nodejs", "npm"]
       state: latest
       update_cache: yes
-
-  - name: "install npm"
-    become: yes
-    npm:
-      name: npm
-      global: yes
-      production: yes
-      
   - name: "install pm2"
     become: true
     npm:
