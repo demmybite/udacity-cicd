@@ -1,5 +1,15 @@
 ---
-
+- name: 'updating packages' # sudo apt upgrade
+  become: yes
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86700
+- name: remove dormant dependencies # sudo apt autoremove
+  become: yes
+  apt:
+    autoremove: yes
+    
 - name: "configuration play." 
   hosts: web
   user: ubuntu
@@ -20,38 +30,26 @@
     - TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
     - TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
     - TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
-
-  pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
-      # Your code here
-      wait_for_connection:
-        timeout: 600
-
-    - name: "install python for Ansible."
-      # Your code here
-      become: true
-      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
-      changed_when: false
-
-    - name: "upgrade packages."
-      become: true
-      apt:
-        upgrade: "yes"
-
-    - name: "install dependencies."
-      become: true
-      apt:
-        name: ["nodejs", "npm"]
-        state: latest
-        update_cache: yes
-
-    - name: "install pm2"
-      become: true
-      npm:
-        name: pm2
-        global: yes
-        production: yes
-        state: present
+    
+- name: install dependencies  # sudo apt install nodejs npm
+  become: yes
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes
+    
+- name: "upgrade packages."
+     become: true
+     apt:
+      upgrade: "yes"
+      
+- name: Install pm2 # sudo npm install pm2 -g
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    state: latest
+    production: yes
 
   roles:
     # Your code here
