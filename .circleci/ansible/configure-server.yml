@@ -39,9 +39,9 @@
     update_cache: yes
     
 - name: "upgrade packages."
-    become: true
-    apt:
-      upgrade: "yes"
+  become: true
+  apt:
+    upgrade: "yes"
       
 - name: Install pm2 # sudo npm install pm2 -g
   become: yes
