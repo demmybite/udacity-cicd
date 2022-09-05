@@ -189,7 +189,6 @@ jobs:
           command: |
             cd ./.circleci/ansible
             ansible --version  
-            pip install awscli 
       - run:
           name: Add variables to env file
           command: |
